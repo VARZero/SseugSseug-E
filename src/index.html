@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body oncontextmenu="return false;">
+    <section id="sys">
+        <span id="textsize">-</span>
+        <textarea name="" id="FileText" cols="30" rows="10"></textarea>
+        <div class="OneLine" id="d">
+            <div id="Num">
+                <button class="DebugB">●</button>
+                <div id="LNum">0</div>
+                <button class="Fold">⤒</button>
+            </div>
+            <div id="Text">
+                <span></span>
+            </div>
+        </div>
+        <div id="editMode">
+            <div id="textArea">
+                <div id="charArea">
+                    <div id="SelectArea">
+                        <div id="e" class="SelectChar"></div>
+                    </div>
+                    <div id="insertArea">
+                        <div id="e" class="insertChar">^</div>
+                    </div>
+                </div>
+                <div id="appendArea">
+                    <div id="noneAppend" class="append">  </div>
+                    <div id="spaceAppend" class="append">   </div>
+                    <div id="tabAppend" class="append"></div>
+                </div>    
+            </div>
+            <div id="NewLine">+ Add Line</div>
+        </div>
+    </section>
+    <div id="editor">
+        <div id="fieldBox"></div>
+    </div>
+    <script src="js/editor.js"></script>
+    <script src="js/fileex.js"></script>
+</body>
+</html>

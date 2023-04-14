@@ -1,0 +1,185 @@
+:root{
+    --fontsize: 16px;
+}
+
+body{
+    -webkit-user-select: none;
+    user-select: none;
+    margin: 0; padding: 0;
+    height: 100%;
+}
+
+body.block{
+    overflow: hidden;
+    touch-action: none;
+}
+
+body.block > *{
+    touch-action: none;
+}
+
+section#sys{
+    position: absolute;
+    top: -9999px;
+    visibility: hidden;
+}
+
+div#editor{
+    white-space: nowrap;
+    font-size: var(--fontsize);
+    height: 100%; min-width: 100%;
+    font-family: Consolas, monospace;
+    font-size: var(--fontsize);
+}
+
+div#fieldBox{
+    width: 100%; height: 1em;
+}
+
+div.OneLine{
+    min-width: 100%;
+    display: flex;
+}
+
+div#Num{
+    touch-action: pan-y;
+    display: flex;
+    vertical-align: middle;
+    position: sticky;
+    left: 0;
+    background-color: white;
+    z-index: 10;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+div#Num > button{
+    border: none; background: none;
+    height: 1em;
+    opacity: 0;
+}
+
+div#Num > button:hover{
+    opacity: 0.5;
+}
+
+div#Num > button.Enable{
+    opacity: 1;
+}
+
+div#LNum{
+    height: 1em;
+    min-width: calc(var(--fontsize) * 2);
+    text-align: right;
+}
+
+div#Text{
+    height: 1em;
+    min-width: 100%;
+    position: relative;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;  
+}
+
+div#Text > span{
+    white-space: pre;
+}
+
+div#Text.editing{
+    min-height: 5em
+}
+
+div#editMode{
+    display: grid;
+    touch-action: none;
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%; width: 100%;
+}
+
+div#editMode > *{
+    touch-action: none;
+}
+
+div#editMode > div#textArea > div > div > div#e{
+    display: none;
+}
+
+div#editMode > div#textArea{
+    display: flex;
+}
+
+div#editMode > div#textArea > div#charArea > div#SelectArea{
+    margin-top: 0.2em;
+    height: 1em; min-width: 0px;
+    display: flex;
+}
+
+div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar{
+    z-index: 5;
+    white-space: pre;
+    height: 1em;
+}   
+
+div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hover, div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar.select{
+    background-color: black; color: white;
+}
+
+div#editMode > div#textArea > div#charArea > div#insertArea{
+    height: 3em;
+    display: flex;
+}
+
+div#editMode > div#textArea > div#charArea > div#insertArea > div.insertChar{
+    box-sizing: border-box;
+    height: 3em;
+    white-space: pre;
+    opacity: 0;
+}
+
+div#editMode > div#textArea > div#charArea > div#insertArea > div.insertChar:hover{
+    opacity: 1;
+}
+
+div#editMode > div#textArea > div#charArea > div#insertArea > div.insertChar.insert{
+    position: relative;
+    width: 200vw;
+    opacity: 1;
+}
+
+div#editMode > div#textArea > div#appendArea{
+    display: flex;
+    width: 100%;
+}
+
+div#editMode > div#textArea > div#appendArea > div.append{
+    position: relative;
+    box-sizing: border-box;
+    height: 100%;
+    border-right: 1px dashed black;
+    white-space: pre;
+}
+
+div#editMode > div#textArea > div#appendArea > div.appending{
+    width: 200vw;
+}
+
+div#editMode > div#textArea > div#appendArea > div#tabAppend{
+    width: 100%;
+}
+
+canvas{
+    z-index: 8;
+    touch-action: none;
+    position: absolute;
+    width: 100%; height: 100%;
+    top: 0; left: 0;
+}
+
+div#editMode > div#NewLine{
+    text-align: center;
+    box-sizing: border-box;
+    border-top: 1px dashed black;
+    border-bottom: 1px dashed black;
+    border-radius: .2em;
+}

@@ -86,7 +86,7 @@ div#Text > span{
 }
 
 div#Text.editing{
-    min-height: 5em
+    min-height: 5em;
 }
 
 div#editMode{
@@ -107,9 +107,11 @@ div#editMode > div#textArea > div > div > div#e{
 
 div#editMode > div#textArea{
     display: flex;
+    box-shadow: 2px 2px 2px gray;
 }
 
 div#editMode > div#textArea > div#charArea > div#SelectArea{
+    position: relative;
     margin-top: 0.2em;
     height: 1em; min-width: 0px;
     display: flex;
@@ -124,6 +126,15 @@ div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar{
 div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hover, div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar.select{
     background-color: black; color: white;
 }
+
+div#editMode > div#textArea > div#charArea > div#SelectArea > div#deleteBox{
+    z-index: 8;
+    position: absolute;
+    height: 1em;
+    background-color: darkred; color: white;
+    text-align: center;
+}
+
 
 div#editMode > div#textArea > div#charArea > div#insertArea{
     height: 3em;
@@ -179,7 +190,5 @@ canvas{
 div#editMode > div#NewLine{
     text-align: center;
     box-sizing: border-box;
-    border-top: 1px dashed black;
-    border-bottom: 1px dashed black;
     border-radius: .2em;
 }

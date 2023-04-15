@@ -4,7 +4,7 @@ let SelcLine, nowEditing; // 선택된 노드 포인터들
 let chkMove = [0, 0]; // 오차 확인할때 사용
 let FileText;
 let Lines = [];
-let editSelStart = null; // edit mode 진입시 삭제 범위
+let editSelStart = null; let editSelEnd = undefined; // edit mode 진입시 삭제 범위
 let activeDraw = 0; // 캔버스 드로우 상태
 let firstPoint = [undefined, undefined];
 let pp = [undefined, undefined];
@@ -18,7 +18,7 @@ function DeleteEditing(){ // 수정 모드 해제
     nowEditing.addEventListener("pointerdown", InTextPD);
     nowEditing.classList.remove("editing");
     nowEditing = undefined;
-    editSelStart = null;
+    editSelStart = null; editSelEnd = undefined;
     canvasN = undefined;
     ctx = undefined;
     activeDraw = 0;
@@ -40,6 +40,8 @@ function editModeSet(editNode){
         NewSel.innerText = Char;
         BoxWid = NewSel.offsetWidth;
         editSelStart = null;
+
+        NewSel.addEventListener("pointerdown", InSelPD);
 
         NewIns = insCharRef.cloneNode(true); NewIns.id += String(charNum);
         insCharRef.parentNode.append(NewIns);
@@ -65,6 +67,16 @@ function appendSet(canvArea){
     NewCanv.addEventListener("pointerdown", CanvinPD);
     NewCanv.addEventListener("pointermove", CanvinPM);
     NewCanv.addEventListener("pointerup", CanvinPU);
+}
+
+function disableSelect(){
+    // 선택/삭제모드 비활성화
+    for (sel of document.querySelectorAll("div.select")){
+        sel.classList.remove("select");
+    }
+    for (del of document.querySelectorAll("div#deleteBox")){
+        del.remove();
+    }
 }
 
 function InTextPD(e){
@@ -93,34 +105,30 @@ function InTextPU(e){
 
 function InSelPD(e){
     // 삭제 부분 시작
-    editSelStart = e.currentTarget.id.replace(/[^0-9]/g,"");
-    console.log("Selete Start: "+ editSelStart);
-}
-
-function InSelPE(e){
-    console.log(e.currentTarget.id);
-    //if (e.pressure == 0 && editSelStart != null){
-    //    editSelEnd = e.currentTarget.id.replace(/[^0~9]/g,"")
-    //    console.log("end: "+ editSelEnd);
-    //    editSelStart == null;
-    //}
-}
-
-function InSelPU(e){
-    // 삭제 부분 끝
-    SelEnd = e.currentTarget.id.replace(/[^0-9]/g,"");
-    LineNum = nowEditing.parentNode.id.replace(/[^0-9]/g,"") - 1; // 라인 번호 가져오기
-
-    if (editSelStart <= SelEnd){
-        LineFront = Lines[LineNum].slice(0, editSelStart-1);
-        LineBack = Lines[LineNum].slice(SelEnd-1, -1);
+    if (editSelStart == null){
+        editSelStart = e.currentTarget.id.replace(/[^0-9]/g,"");
+        e.currentTarget.classList.add("select")
+    }
+    else if (editSelEnd == undefined){
+        editSelEnd = e.currentTarget.id.replace(/[^0-9]/g,"");
+        
+        // 삭제 메뉴 생성
+        disableSelect();
+        deleteMenu = document.createElement("div");
+        deleteMenu.id = "deleteBox";
+        deleteMenu.start = editSelStart; deleteMenu.end = editSelEnd;
+        deleteMenu.innerText = 'X';
+        e.currentTarget.parentNode.append(deleteMenu);
+        firstChar = document.querySelector("div#SelectArea > div.SelectChar#e" + ((Number(editSelStart) <= Number(editSelEnd)) ? editSelStart : editSelEnd ))
+        lastChar = document.querySelector("div#SelectArea > div.SelectChar#e" + ((Number(editSelStart) <= Number(editSelEnd)) ? editSelEnd : editSelStart ))
+        dleft = firstChar.offsetLeft + "px";
+        dwidth = String(Number(lastChar.offsetLeft + lastChar.offsetWidth) - parseFloat(dleft)) + "px";
+        deleteMenu.style.cssText = "left: " + dleft + "; width: " + dwidth + ";";
     }
     else{
-        LineFront = Lines[LineNum].slice(0, SelEnd-1);
-        LineBack = Lines[LineNum].slice(editSelStart-1, -1);
+        editSelStart = null; editSelEnd = undefined;
+        disableSelect();
     }
-    console.log("Selete End: "+ SelEnd);
-    console.log(LineFront+LineBack);
 }
 
 function InInsPD(e){
@@ -128,6 +136,13 @@ function InInsPD(e){
     insChar = e.currentTarget;
     insChar.classList.add("insert");
     appendSet(insChar);
+    
+    // 선택 부분 비활성화
+    editSelStart = null; editSelEnd = undefined;
+    disableSelect();
+    for (sel of document.querySelectorAll("div.SelectChar")){
+        sel.removeEventListener("pointerdown", InSelPD);
+    }
 }
 
 function InAppendPD(e){
@@ -222,8 +237,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
     TextToLines(FileText);
     setEditor();
-
-    document.addEventListener("drag",() => {console.log("Drag")})
 });
 
 //todo html에 editMode엘리먼트 추가해서 편집모드 기능 추가.

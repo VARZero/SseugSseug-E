@@ -116,11 +116,12 @@ function InSelPD(e){
         disableSelect();
         deleteMenu = document.createElement("div");
         deleteMenu.id = "deleteBox";
-        deleteMenu.dataset.start = editSelStart; deleteMenu.dataset.end = editSelEnd;
+        deleteMenu.dataset.start = (Number(editSelStart) <= Number(editSelEnd)) ? editSelStart : editSelEnd;
+        deleteMenu.dataset.end = (Number(editSelStart) <= Number(editSelEnd)) ? editSelEnd : editSelStart;
         deleteMenu.innerText = 'X';
         e.currentTarget.parentNode.append(deleteMenu);
-        firstChar = document.querySelector("div#SelectArea > div.SelectChar#e" + ((Number(editSelStart) <= Number(editSelEnd)) ? editSelStart : editSelEnd ))
-        lastChar = document.querySelector("div#SelectArea > div.SelectChar#e" + ((Number(editSelStart) <= Number(editSelEnd)) ? editSelEnd : editSelStart ))
+        firstChar = document.querySelector("div#SelectArea > div.SelectChar#e" + deleteMenu.dataset.start);
+        lastChar = document.querySelector("div#SelectArea > div.SelectChar#e" + deleteMenu.dataset.end);
         dleft = firstChar.offsetLeft + "px";
         dwidth = String(Number(lastChar.offsetLeft + lastChar.offsetWidth) - parseFloat(dleft)) + "px";
         deleteMenu.style.cssText = "left: " + dleft + "; width: " + dwidth + ";";
@@ -138,7 +139,7 @@ function InDelPU(e){
     SelLine = document.querySelector("div#Text.editing").parentNode;
     LineNum = SelLine.id.replace(/[^0-9]/g,"");
     txtFront = Lines[LineNum-1].slice(0, tstart);
-    txtBack = Lines[LineNum-1].slice(Number(tend)+1, -1);
+    txtBack = Lines[LineNum-1].slice(Number(tend)+1);
     Lines[LineNum-1] = txtFront + txtBack;
 
     console.log(Lines[LineNum-1])
@@ -185,26 +186,26 @@ function InAppendPD(e){
 
 // 캔버스 드로우 관련
 function CanvinPD(e){
-    //if (e.pointerType == "pen"){
+    if (e.pointerType == "pen"){
         activeDraw = 1;
         if (firstPoint[0] != undefined){return;}
          firstPoint = [e.offsetX, e.offsetY];
-    //}
+    }
 }
 
 function CanvinPM(e){
-    if (/*e.pointerType == "pen" &&*/ activeDraw == 1 /*&& e.pressure != 0*/){
+    if (e.pointerType == "pen" && activeDraw == 1 && e.pressure != 0){
         pp = setCanvasDR([e.offsetX,e.offsetY], (pp != [undefined, undefined]) ? pp : [e.offsetX, e.offsetY]);
     }
 }
 
 function CanvinPU(e){
-    //if (e.pointerType == "pen"){
+    if (e.pointerType == "pen"){
         activeDraw = 0;
         //clearTimeout(setTime);
         //setTime = setTimeout(prcLine, 1000, canvasN.parentNode.id == "LText" ? false : true, [firstPoint[0], firstPoint[1], e.offsetX]);
         pp = [undefined, undefined];
-    //}
+    }
 }
 
 function setCanvasWH(canv){

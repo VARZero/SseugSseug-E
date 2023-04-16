@@ -116,7 +116,7 @@ function InSelPD(e){
         disableSelect();
         deleteMenu = document.createElement("div");
         deleteMenu.id = "deleteBox";
-        deleteMenu.start = editSelStart; deleteMenu.end = editSelEnd;
+        deleteMenu.dataset.start = editSelStart; deleteMenu.dataset.end = editSelEnd;
         deleteMenu.innerText = 'X';
         e.currentTarget.parentNode.append(deleteMenu);
         firstChar = document.querySelector("div#SelectArea > div.SelectChar#e" + ((Number(editSelStart) <= Number(editSelEnd)) ? editSelStart : editSelEnd ))
@@ -124,11 +124,39 @@ function InSelPD(e){
         dleft = firstChar.offsetLeft + "px";
         dwidth = String(Number(lastChar.offsetLeft + lastChar.offsetWidth) - parseFloat(dleft)) + "px";
         deleteMenu.style.cssText = "left: " + dleft + "; width: " + dwidth + ";";
+        deleteMenu.addEventListener("pointerup", InDelPU);
     }
     else{
         editSelStart = null; editSelEnd = undefined;
         disableSelect();
     }
+}
+
+function InDelPU(e){
+    // 글자 삭제
+    tstart = e.currentTarget.dataset.start; tend = e.currentTarget.dataset.end;
+    SelLine = document.querySelector("div#Text.editing").parentNode;
+    LineNum = SelLine.id.replace(/[^0-9]/g,"");
+    txtFront = Lines[LineNum-1].slice(0, tstart);
+    txtBack = Lines[LineNum-1].slice(Number(tend)+1, -1);
+    Lines[LineNum-1] = txtFront + txtBack;
+
+    console.log(Lines[LineNum-1])
+
+    // UI 요소 새로고침
+    reLine = setLine(Lines[LineNum-1], LineNum);
+    SelLine.after(reLine);
+    SelLine.id = "";
+
+    nowEditing = reLine.children[1];
+    document.body.classList.add("block")
+    nowEditing.classList.add("editing");
+
+    editBox = editMode.cloneNode(true);
+    nowEditing.appendChild(editBox); // div#Text에 추가
+    editModeSet(editBox);
+
+    SelLine.remove();
 }
 
 function InInsPD(e){
@@ -222,6 +250,8 @@ function setLine(text, num){
 
     Line.children[1].addEventListener("pointerdown", InTextPD); // Text에 이벤트 추가
     editor.appendChild(Line);
+
+    return Line;
 }
 
 function TextToLines(text){

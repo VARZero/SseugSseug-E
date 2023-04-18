@@ -127,6 +127,10 @@ div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hov
     background-color: black; color: white;
 }
 
+div.disSel > div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hover, div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar.select{
+    background-color: white; color: black;
+}
+
 div#editMode > div#textArea > div#charArea > div#SelectArea > div#deleteBox{
     z-index: 8;
     position: absolute;
@@ -134,7 +138,6 @@ div#editMode > div#textArea > div#charArea > div#SelectArea > div#deleteBox{
     background-color: darkred; color: white;
     text-align: center;
 }
-
 
 div#editMode > div#textArea > div#charArea > div#insertArea{
     height: 3em;
@@ -155,6 +158,14 @@ div#editMode > div#textArea > div#charArea > div#insertArea > div.insertChar:hov
 div#editMode > div#textArea > div#charArea > div#insertArea > div.insertChar.insert{
     position: relative;
     width: 200vw;
+    opacity: 1;
+}
+
+div.disSel > div#editMode > div#textArea > div#charArea > div#insertArea > div.insertChar:hover{
+    opacity: 0;
+}
+
+div.disSel > div#editMode > div#textArea > div#charArea > div#insertArea > div.insert:hover{
     opacity: 1;
 }
 

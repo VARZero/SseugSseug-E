@@ -9,6 +9,7 @@ let activeDraw = 0; // 캔버스 드로우 상태
 let firstPoint = [undefined, undefined];
 let pp = [undefined, undefined];
 let canvasN, ctx;
+let upTime; // 글자 쓰고 마지막 선택 시간
 let fontsize = Number(getComputedStyle(document.documentElement).getPropertyValue("--fontsize").replace(/[^0-9]/g,""));
 
 function DeleteEditing(){ // 수정 모드 해제
@@ -77,7 +78,8 @@ function disableSelect(){
     for (del of document.querySelectorAll("div#deleteBox")){
         del.remove();
     }
-}
+    nowEditing.classList.add("disSel");
+;}
 
 function InTextPD(e){
     if (DeleteEditing() == 1){return;}
@@ -172,6 +174,10 @@ function InInsPD(e){
     for (sel of document.querySelectorAll("div.SelectChar")){
         sel.removeEventListener("pointerdown", InSelPD);
     }
+
+    for (ins of document.querySelectorAll("div.insertChar")){
+        ins.removeEventListener("pointerdown", InInsPD);
+    }
 }
 
 function InAppendPD(e){
@@ -202,8 +208,8 @@ function CanvinPM(e){
 function CanvinPU(e){
     if (e.pointerType == "pen"){
         activeDraw = 0;
-        //clearTimeout(setTime);
-        //setTime = setTimeout(prcLine, 1000, canvasN.parentNode.id == "LText" ? false : true, [firstPoint[0], firstPoint[1], e.offsetX]);
+        clearTimeout(upTime);
+        upTime = setTimeout(prcWrite, 2000);
         pp = [undefined, undefined];
     }
 }
@@ -233,6 +239,21 @@ function InEditorPMCancel(e){
 
     editor.removeEventListener("pointermove", InEditorPMCancel);
     SelcLine.removeEventListener("pointerup", InTextPU);
+}
+
+function prcWrite(/*line, editNode*/){
+    txt = prcOCR(canvasN.toDataURL());
+    ctx.clearRect(0, 0, canvasN.width, canvasN.height);
+}
+
+async function prcOCR(img){
+    out = await Tesseract.recognize(img, "eng", {
+        workerPath: 'https://unpkg.com/tesseract.js@v4.0.1/dist/worker.min.js',
+        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+        corePath: 'https://unpkg.com/tesseract.js-core@v4.0.1/tesseract-core.wasm.js',
+    });
+    console.log(out.data.text);
+    return out;
 }
 
 function setEditor(){

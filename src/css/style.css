@@ -127,7 +127,7 @@ div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hov
     background-color: black; color: white;
 }
 
-div.disSel > div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hover, div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar.select{
+div.disSel > div#editMode > div#textArea > div#charArea > div#SelectArea > div.SelectChar:hover{
     background-color: white; color: black;
 }
 

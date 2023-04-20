@@ -144,10 +144,9 @@ function InDelPU(e){
     txtBack = Lines[LineNum-1].slice(Number(tend)+1);
     Lines[LineNum-1] = txtFront + txtBack;
 
-    console.log(Lines[LineNum-1])
-
     // UI 요소 새로고침
     reLine = setLine(Lines[LineNum-1], LineNum);
+    reLine.children[1].removeEventListener("pointerdown", InTextPD);
     SelLine.after(reLine);
     SelLine.id = "";
 
@@ -159,6 +158,7 @@ function InDelPU(e){
     nowEditing.appendChild(editBox); // div#Text에 추가
     editModeSet(editBox);
 
+    editSelStart = null; editSelEnd = undefined;
     SelLine.remove();
 }
 
@@ -209,7 +209,9 @@ function CanvinPU(e){
     if (e.pointerType == "pen"){
         activeDraw = 0;
         clearTimeout(upTime);
-        upTime = setTimeout(prcWrite, 2000);
+        upTime = setTimeout(prcWrite, 2000, nowEditing.parentNode.id.replace(/[^0-9]/g,""), nowEditing.parentNode,
+            (canvasN.parentNode.classList.contains("insertChar")) ? canvasN.parentNode.id.replace(/[^0-9]/g,"") : null, 
+            (canvasN.parentNode.classList.contains("append")) ? canvasN.parentNode.id.replace(/Append/g,"") : "none");
         pp = [undefined, undefined];
     }
 }
@@ -241,9 +243,11 @@ function InEditorPMCancel(e){
     SelcLine.removeEventListener("pointerup", InTextPU);
 }
 
-function prcWrite(/*line, editNode*/){
+function prcWrite(line, editNode, col, appSpace){
     txt = prcOCR(canvasN.toDataURL());
     ctx.clearRect(0, 0, canvasN.width, canvasN.height);
+
+    console.log("ADD "+line+":"+col+" Space is "+appSpace);
 }
 
 async function prcOCR(img){

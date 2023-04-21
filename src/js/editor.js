@@ -92,6 +92,8 @@ function InTextPD(e){
 
 function InTextPU(e){
     // 수정모드 진입
+    console.log(e.pointerType);
+    if (e.pointerType != "pen"){ return; }
     nowEditing = e.currentTarget;
     document.body.classList.add("block")
     nowEditing.classList.add("editing");
@@ -244,10 +246,31 @@ function InEditorPMCancel(e){
 }
 
 function prcWrite(line, editNode, col, appSpace){
-    txt = prcOCR(canvasN.toDataURL());
+    txtimg = canvasN.toDataURL();
     ctx.clearRect(0, 0, canvasN.width, canvasN.height);
 
-    console.log("ADD "+line+":"+col+" Space is "+appSpace);
+    prcOCR(txtimg).then((txt) => {
+        if (appSpace == "none"){ sp = ""; } else if (appSpace == "space"){ sp = " "; } else if (appSpace == "tab"){ sp = "   "; }
+        if (col == null){ Lines[line-1] += (sp + txt); }
+        else{ Lines[line-1] = Lines[line-1].slice(0, col) + txt + Lines[line-1].slice(Number(col)); }
+
+        // UI 요소 새로고침
+        reLine = setLine(Lines[LineNum-1], LineNum);
+        reLine.children[1].removeEventListener("pointerdown", InTextPD);
+        editNode.after(reLine);
+        editNode.id = "";
+
+        nowEditing = reLine.children[1];
+        document.body.classList.add("block")
+        nowEditing.classList.add("editing");
+
+        editBox = editMode.cloneNode(true);
+        nowEditing.appendChild(editBox); // div#Text에 추가
+        editModeSet(editBox);
+
+        editSelStart = null; editSelEnd = undefined;
+        editNode.remove();
+    });
 }
 
 async function prcOCR(img){
@@ -256,8 +279,7 @@ async function prcOCR(img){
         langPath: 'https://tessdata.projectnaptha.com/4.0.0',
         corePath: 'https://unpkg.com/tesseract.js-core@v4.0.1/tesseract-core.wasm.js',
     });
-    console.log(out.data.text);
-    return out;
+    return out.data.text.replace("\n","");
 }
 
 function setEditor(){
@@ -284,6 +306,8 @@ function TextToLines(text){
     Lines = text.split('\n');
 }
 
+
+
 document.addEventListener("DOMContentLoaded", function(){
     editor = document.getElementById("editor");
     OneLine = document.querySelector("div#d.OneLine");
@@ -291,8 +315,19 @@ document.addEventListener("DOMContentLoaded", function(){
     OneLH = OneLine.offsetHeight;
     //document.addEventListener("contextmenu", () => {return false;});
 
-    TextToLines(FileText);
-    setEditor();
-});
+    const element = document.querySelector('#open');
 
-//todo html에 editMode엘리먼트 추가해서 편집모드 기능 추가.
+    element.addEventListener('input', (event) => {
+        const target = event.target;
+        const files = target.files;
+        const file = files[0];
+        
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            FileText = reader.result;
+            TextToLines(FileText);
+            setEditor();
+        });
+        reader.readAsText(file);
+    });
+});

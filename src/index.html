@@ -14,6 +14,7 @@
         <textarea name="" id="FileText" cols="30" rows="10"></textarea>
         <div class="OneLine" id="d">
             <div id="Num">
+                <button class="deleteL">×</button>
                 <button class="DebugB">●</button>
                 <div id="LNum">0</div>
                 <button class="Fold">⤒</button>
@@ -41,9 +42,13 @@
             <div id="NewLine">+ Add Line</div>
         </div>
     </section>
-    <div id="fieldBox"><input type="file" id="open"></div>
-    <div id="editor">
+    <div id="Options">
+        <div id="fieldBox"><input type="file" id="open"></div>
+        <button id="save">저장</button>
+        <div id="addTopLine">+ Add Top Line</div>
+
     </div>
+    <div id="editor"></div>
     <script src="js/editor.js"></script>
 </body>
 </html>

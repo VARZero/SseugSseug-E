@@ -7,6 +7,7 @@ body{
     user-select: none;
     margin: 0; padding: 0;
     height: 100%;
+    font-family: Consolas, monospace;
 }
 
 body.block{
@@ -22,6 +23,12 @@ section#sys{
     position: absolute;
     top: -9999px;
     visibility: hidden;
+}
+
+div#addTopLine{
+    position: sticky;
+    left: 0;
+    height: 100%;
 }
 
 div#editor{
@@ -200,6 +207,4 @@ canvas{
 
 div#editMode > div#NewLine{
     text-align: center;
-    box-sizing: border-box;
-    border-radius: .2em;
 }

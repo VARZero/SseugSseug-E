@@ -3,7 +3,7 @@ let textW, OneLH; // 글자, 레퍼런스 노드 길이요소
 let SelcLine, nowEditing; // 선택된 노드 포인터들
 let chkMove = [0, 0]; // 오차 확인할때 사용
 let FileText;
-let Lines = [];
+let Lines = [[]];
 let editSelStart = null; let editSelEnd = undefined; // edit mode 진입시 삭제 범위
 let activeDraw = 0; // 캔버스 드로우 상태
 let firstPoint = [undefined, undefined];
@@ -32,6 +32,7 @@ function editModeSet(editNode){
     // 편집모드 세팅
     SelCharRef = editNode.children[0].children[0].children[0].children[0];
     insCharRef = editNode.children[0].children[0].children[1].children[0];
+    NewLineNode = editNode.children[1];
     LineNum = nowEditing.parentNode.id.replace(/[^0-9]/g,""); // 라인 번호 가져오기
 
     charNum = 0;
@@ -57,6 +58,8 @@ function editModeSet(editNode){
     for(AppendCh of AppendPrnt.children){
         AppendCh.addEventListener("pointerdown", InAppendPD);
     }
+
+    NewLineNode.addEventListener("pointerdown", function(event){InNewLinePD(event, LineNum)});
 }
 
 function appendSet(canvArea){
@@ -92,7 +95,6 @@ function InTextPD(e){
 
 function InTextPU(e){
     // 수정모드 진입
-    console.log(e.pointerType);
     if (e.pointerType != "pen"){ return; }
     nowEditing = e.currentTarget;
     document.body.classList.add("block")
@@ -122,7 +124,7 @@ function InSelPD(e){
         deleteMenu.id = "deleteBox";
         deleteMenu.dataset.start = (Number(editSelStart) <= Number(editSelEnd)) ? editSelStart : editSelEnd;
         deleteMenu.dataset.end = (Number(editSelStart) <= Number(editSelEnd)) ? editSelEnd : editSelStart;
-        deleteMenu.innerText = 'X';
+        deleteMenu.innerText = '×';
         e.currentTarget.parentNode.append(deleteMenu);
         firstChar = document.querySelector("div#SelectArea > div.SelectChar#e" + deleteMenu.dataset.start);
         lastChar = document.querySelector("div#SelectArea > div.SelectChar#e" + deleteMenu.dataset.end);
@@ -218,6 +220,19 @@ function CanvinPU(e){
     }
 }
 
+function InNewLinePD(e, num){
+    Lines.splice(num+1, 0, "");
+    SelcLine = undefined, nowEditing = undefined; canvasN = undefined, ctx = undefined;
+    setEditor();
+}
+
+function InLineDeletePD(e, num){
+    console.log("ee");
+    Lines.splice(num-1, 1)
+    SelcLine = undefined, nowEditing = undefined; canvasN = undefined, ctx = undefined;
+    setEditor();
+}
+
 function setCanvasWH(canv){
     canv.width = canv.offsetWidth;
     canv.height = canv.offsetHeight;
@@ -250,7 +265,7 @@ function prcWrite(line, editNode, col, appSpace){
     ctx.clearRect(0, 0, canvasN.width, canvasN.height);
 
     prcOCR(txtimg).then((txt) => {
-        if (appSpace == "none"){ sp = ""; } else if (appSpace == "space"){ sp = " "; } else if (appSpace == "tab"){ sp = "   "; }
+        if (appSpace == "none"){ sp = ""; } else if (appSpace == "space"){ sp = " "; } else if (appSpace == "tab"){ sp = "    "; }
         if (col == null){ Lines[line-1] += (sp + txt); }
         else{ Lines[line-1] = Lines[line-1].slice(0, col) + txt + Lines[line-1].slice(Number(col)); }
 
@@ -279,23 +294,31 @@ async function prcOCR(img){
         langPath: 'https://tessdata.projectnaptha.com/4.0.0',
         corePath: 'https://unpkg.com/tesseract.js-core@v4.0.1/tesseract-core.wasm.js',
     });
-    return out.data.text.replace("\n","");
+    return out.data.text.replace(/\n/g,"");
 }
 
 function setEditor(){
+    SelcLine = undefined, nowEditing = undefined; canvasN = undefined, ctx = undefined;
+    while (editor.children.length >= 1){
+        editor.children[0].remove();
+    }
     let LineNum = 1;
     for (let TextOne of Lines){
         setLine(TextOne, LineNum);
         LineNum += 1;
+    }
+    if (Lines.length == 0){
+        setLine("", 1);
     }
 }
 
 function setLine(text, num){
     Line = OneLine.cloneNode(true);
     Line.id += num;
-    Line.children[0].children[1].innerText = num; // Line Number
+    Line.children[0].children[2].innerText = num; // Line Number
     Line.children[1].children[0].innerText = text; // Line Text
 
+    Line.children[0].children[0].addEventListener("pointerdown", function(event){InLineDeletePD(event, num);}); // 라인 삭제 기능
     Line.children[1].addEventListener("pointerdown", InTextPD); // Text에 이벤트 추가
     editor.appendChild(Line);
 
@@ -306,28 +329,55 @@ function TextToLines(text){
     Lines = text.split('\n');
 }
 
+function fileSave(){
+    var fname = prompt("파일 이름 입력");
+    var properties = {type: 'text/plain'};
 
+    saveLine = []
+    for (l of Lines){
+        saveLine.push(l+"\n");
+    }
+
+    try{
+        file = new File(saveLine, fname, properties);
+    } catch(e){
+        file = new Blob(saveLine, properties);
+    }
+    a = document.createElement("a");
+    furl = URL.createObjectURL(file);
+    a.href = furl;
+    a.download = fname;
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(furl);
+}
 
 document.addEventListener("DOMContentLoaded", function(){
     editor = document.getElementById("editor");
     OneLine = document.querySelector("div#d.OneLine");
     editMode = document.getElementById("editMode");
-    OneLH = OneLine.offsetHeight;
-    //document.addEventListener("contextmenu", () => {return false;});
 
-    const element = document.querySelector('#open');
-
-    element.addEventListener('input', (event) => {
+    const fileOpen = document.querySelector("#open");
+    fileOpen.addEventListener('input', (event) => {
         const target = event.target;
         const files = target.files;
         const file = files[0];
-        
         const reader = new FileReader();
         reader.addEventListener('load', () => {
             FileText = reader.result;
+            Lines = [[]];
             TextToLines(FileText);
+
             setEditor();
         });
         reader.readAsText(file);
     });
-});
+
+    document.getElementById("save").addEventListener("pointerdown", function(){
+        fileSave();
+    });
+
+    document.getElementById("addTopLine").addEventListener("pointerdown", function(event){InNewLinePD(event, -1)});
+
+    setLine("", 1);
+}); 
